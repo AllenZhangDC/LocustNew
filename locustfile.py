@@ -1,4 +1,4 @@
-import time, json, base64, json, gevent
+import time, json, base64, json, gevent, requests
 from locust import HttpUser, task, run_single_user
 from mylib import *
 from Ggrequest import *
@@ -6,8 +6,8 @@ import xml.etree.ElementTree as ET
 from locust import *
 
 
-host_load = "https://loadtest.dev.ganjing.world/v1/cdkapi"
-host_prod = "https://fg2.dev.ganjing.world/v1/cdkapi" #host_load
+host_load = "https://fg2uw.dev.ganjing.world/v1/cdkapi"
+# host_prod = "https://fg2.dev.ganjing.world/v1/cdkapi" #host_load
 host_load = host_load
     
 class Video(FastHttpUser):
@@ -45,21 +45,21 @@ class VideoCallbackStress(FastHttpUser):
                     self.ThirdQuartile = ET.fromstring(xml).findall(".//*[@event='thirdQuartile']")[1].text
                     self.Complete = ET.fromstring(xml).findall(".//*[@event='complete']")[1].text
                     self.ClickTracking = ET.fromstring(xml).findall(".//ClickTracking")[0].text
-                    self.client.get(url=self.Impression, name="01.1 Getone: Impression")
+                    self.client.get(url=self.Impression, name="Video Callback")
                     if(decision(0.6)):
-                        self.client.get(url=self.Skip, name="01.2 Getone: Skip")
+                        self.client.get(url=self.Skip, name="Video Callback")
                         if(decision(0.46)):
-                            self.client.get(url=self.Progress, name="01.3 Getone: Progress")
+                            self.client.get(url=self.Progress, name="Video Callback")
                         if(decision(0.71)):
-                            self.client.get(url=self.FirstQuartile, name="01.4 Getone: FirstQuartile")
+                            self.client.get(url=self.FirstQuartile, name="Video Callback")
                             if(decision(0.63)):
-                                self.client.get(url=self.Midpoint, name = "01.5 Getone: Midpoint")
+                                self.client.get(url=self.Midpoint, name="Video Callback")
                                 if(decision(0.83)):
-                                    self.client.get(url=self.ThirdQuartile, name = "01.6 Getone: ThirdQuartile")
+                                    self.client.get(url=self.ThirdQuartile, name="Video Callback")
                                     if(decision(0.87)):
-                                        self.client.get(url=self.Complete, name = "01.7 Getone: Complete")
+                                        self.client.get(url=self.Complete, name="Video Callback")
                     if(decision(0.08)):
-                        self.client.get(url=self.ClickTracking, name = "01.8 Getone: ClickTracking", allow_redirects=False)
+                        self.client.get(url=self.ClickTracking, name="Video Callback", allow_redirects=False)
                 else:
                     resp.failure("is_404: True. NoAdsReason: " + json_data["data"]["no_ad_reason"])
             # System will do below exceptions
@@ -88,22 +88,22 @@ class VideoCallbackReal(FastHttpUser):
                     gevent.sleep(1)
                     self.client.get(url=self.Impression, name="01.1 Getone: Impression")
                     if(decision(0.6)):
-                        gevent.sleep(4)
+                        #gevent.sleep(4)
                         self.client.get(url=self.Skip, name="01.2 Getone: Skip")
                         if(decision(0.46)):
-                            gevent.sleep(7)
+                            #gevent.sleep(7)
                             self.client.get(url=self.Progress, name="01.3 Getone: Progress")
                         if(decision(0.71)):
                             self.client.get(url=self.FirstQuartile, name="01.4 Getone: FirstQuartile")
-                            gevent.sleep(3)
+                            #gevent.sleep(3)
                             if(decision(0.63)):
-                                gevent.sleep(7)
+                                #gevent.sleep(7)
                                 self.client.get(url=self.Midpoint, name = "01.5 Getone: Midpoint")
                                 if(decision(0.83)):
-                                    gevent.sleep(7)
+                                   # gevent.sleep(7)
                                     self.client.get(url=self.ThirdQuartile, name = "01.6 Getone: ThirdQuartile")
                                     if(decision(0.87)):
-                                        gevent.sleep(7)
+                                    #    gevent.sleep(7)
                                         self.client.get(url=self.Complete, name = "01.7 Getone: Complete")
                     if(decision(0.08)):
                         self.client.get(url=self.ClickTracking, name = "01.8 Getone: ClickTracking", allow_redirects=False)
@@ -125,7 +125,7 @@ class Banner(FastHttpUser):
                         resp.failure("is_404: True. NoAdsReason: " + json_result["data"][each]["no_ad_reason"])
 
 
-class BannerCallback(FastHttpUser):
+class BannerCallbackStress(FastHttpUser):
     host = host_load
     wait_time = constant_throughput(1)
     
@@ -138,11 +138,11 @@ class BannerCallback(FastHttpUser):
                 for each in json_result["data"]:
                     if(json_result["data"][each]["is_404"] == False):
                         if(json_result["data"][each]["impURL"] != ""):
-                            self.client.get(url=json_result["data"][each]["impURL"], name="02.1 Banner: Impression")
+                            self.client.get(url=json_result["data"][each]["impURL"], name="Banner Callback")
                             if(decision(0.33) and json_result["data"][each]["viewableImpURL"] != ""):
-                                self.client.get(url=json_result["data"][each]["viewableImpURL"], name="02.2 Banner: Viewable")
+                                self.client.get(url=json_result["data"][each]["viewableImpURL"], name="Banner Callback")
                                 if(decision(0.007) and json_result["data"][each]["clickURL"] != ""):
-                                    self.client.get(url=json_result["data"][each]["clickURL"], name="02.3 Banner: Click", allow_redirects=False)
+                                    self.client.get(url=json_result["data"][each]["clickURL"], name="Banner Callback", allow_redirects=False)
                     else:
                         resp.failure("is_404: True. NoAdsReason: " + json_result["data"][each]["no_ad_reason"])
 
@@ -189,7 +189,7 @@ class Shorts(FastHttpUser):
           
 
 
-class ShortsCallback(FastHttpUser):
+class ShortsCallbackStress(FastHttpUser):
     host = host_load
     wait_time = constant_throughput(1)
     @task
@@ -204,12 +204,12 @@ class ShortsCallback(FastHttpUser):
                     if(json_result["data"][each]["is_404"] == False):
                         if(json_result["data"][each]["html"] != ""):
                             if("impURL" in json_result["data"][each]):
-                                self.client.get(url=json_result["data"][each]["impURL"], name= "03.1.1 Shorts-Banner: Impression")
+                                self.client.get(url=json_result["data"][each]["impURL"], name="Short Callback")
                                 if(decision(0.33)):
-                                    self.client.get(url=json_result["data"][each]["viewableImpURL"], name= "03.1.2 Shorts-Banner: Viewable")
+                                    self.client.get(url=json_result["data"][each]["viewableImpURL"], name="Short Callback")
                                     if(decision(0.007)):
                                         click_url = json_result["data"][each]["clickURL"]
-                                        self.client.get(click_url, name = "03.1.3 Shorts-Banner: Click", allow_redirects=False)
+                                        self.client.get(click_url, allow_redirects=False, name="Short Callback")
                         else:
                             xml = base64.b64decode(json_result["data"][each]["xml"])
                             self.Impression = ET.fromstring(xml).findall(".//Impression")[1].text
@@ -220,20 +220,21 @@ class ShortsCallback(FastHttpUser):
                             self.ThirdQuartile = ET.fromstring(xml).findall(".//*[@event='thirdQuartile']")[1].text
                             self.Complete = ET.fromstring(xml).findall(".//*[@event='complete']")[1].text
                             self.ClickTracking = ET.fromstring(xml).findall(".//ClickTracking")[0].text
+                            self.client.get(url=self.Impression, name="Short Callback")
                             if(decision(0.6)):
-                                self.client.get(url=self.Skip, name="01.2 Getone: Skip")
+                                self.client.get(url=self.Skip, name="Short Callback")
                                 if(decision(0.46)):
-                                    self.client.get(url=self.Progress, name="01.3 Getone: Progress")
+                                    self.client.get(url=self.Progress, name="Short Callback")
                                 if(decision(0.71)):
-                                    self.client.get(url=self.FirstQuartile, name="01.4 Getone: FirstQuartile")
+                                    self.client.get(url=self.FirstQuartile, name="Short Callback")
                                     if(decision(0.63)):
-                                        self.client.get(url=self.Midpoint, name = "01.5 Getone: Midpoint")
+                                        self.client.get(url=self.Midpoint, name="Short Callback")
                                         if(decision(0.83)):
-                                            self.client.get(url=self.ThirdQuartile, name = "01.6 Getone: ThirdQuartile")
+                                            self.client.get(url=self.ThirdQuartile, name="Short Callback")
                                             if(decision(0.87)):
-                                                self.client.get(url=self.Complete, name = "01.7 Getone: Complete")
+                                                self.client.get(url=self.Complete, name="Short Callback")
                             if(decision(0.08)):
-                                self.client.get(url=self.ClickTracking, name = "01.8 Getone: ClickTracking", allow_redirects=False)
+                                self.client.get(url=self.ClickTracking, allow_redirects=False, name="Short Callback")
                     else:
                         resp.failure("is_404: True. NoAdsReason: " + json_result["data"][each]["no_ad_reason"] )
 
@@ -273,30 +274,30 @@ class ShortsCallbackReal(FastHttpUser):
                             self.Complete = ET.fromstring(xml).findall(".//*[@event='complete']")[1].text
                             self.ClickTracking = ET.fromstring(xml).findall(".//ClickTracking")[0].text
                             gevent.sleep(1)
-                            self.client.get(url=self.Impression, name="01.1 Getone: Impression")
+                            self.client.get(url=self.Impression, name="03.1 Shorts-Video: Impression")
                             if(decision(0.6)):
                                 gevent.sleep(4)
-                                self.client.get(url=self.Skip, name="01.2 Getone: Skip")
+                                self.client.get(url=self.Skip, name="03.2 Shorts-Video: Skip")
                                 if(decision(0.46)):
                                     gevent.sleep(7)
-                                    self.client.get(url=self.Progress, name="01.3 Getone: Progress")
+                                    self.client.get(url=self.Progress, name="03.3 Shorts-Video: Progress")
                                 if(decision(0.71)):
-                                    self.client.get(url=self.FirstQuartile, name="01.4 Getone: FirstQuartile")
+                                    self.client.get(url=self.FirstQuartile, name="03.4 Shorts-Video: FirstQuartile")
                                     gevent.sleep(3)
                                     if(decision(0.63)):
                                         gevent.sleep(7)
-                                        self.client.get(url=self.Midpoint, name = "01.5 Getone: Midpoint")
+                                        self.client.get(url=self.Midpoint, name = "03.5 Shorts-Video: Midpoint")
                                         if(decision(0.83)):
                                             gevent.sleep(7)
-                                            self.client.get(url=self.ThirdQuartile, name = "01.6 Getone: ThirdQuartile")
+                                            self.client.get(url=self.ThirdQuartile, name = "03.6 Shorts-Video: ThirdQuartile")
                                             if(decision(0.87)):
                                                 gevent.sleep(7)
-                                                self.client.get(url=self.Complete, name = "01.7 Getone: Complete")
+                                                self.client.get(url=self.Complete, name = "03.7 Shorts-Video: Complete")
                             if(decision(0.08)):
-                                self.client.get(url=self.ClickTracking, name = "01.8 Getone: ClickTracking", allow_redirects=False)
+                                self.client.get(url=self.ClickTracking, name = "03.8 Shorts-Video: ClickTracking", allow_redirects=False)
                     else:
                         resp.failure("is_404: True. NoAdsReason: " + json_result["data"][each]["no_ad_reason"] )
 
 
 if __name__ == "__main__":
-    run_single_user(Shorts)
+    run_single_user(VideoCallbackStress)
